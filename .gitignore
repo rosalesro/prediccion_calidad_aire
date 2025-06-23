@@ -1,0 +1,27 @@
+# 1. Entorno virtual (no subir tu .venv completo)
+.venv/
+venv/
+env/
+ENV/
+
+# 2. Archivos compilados de Python
+__pycache__/
+*.py[cod]
+
+# 3. Variables de entorno
+.env
+
+# 4. Datos o modelos grandes que no quieres versionar
+entrenamiento/data/
+entrenamiento/modelos_guardados/*.pkl
+
+# 5. Archivos del sistema o del editor
+.DS_Store        # macOS
+.vscode/         # Visual Studio Code
+.idea/           # PyCharm / IntelliJ
+
+# 6. Otros (logs, paquetes, cobertura)
+*.log
+build/
+dist/
+*.egg-info/

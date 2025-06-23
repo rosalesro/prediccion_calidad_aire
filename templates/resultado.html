@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado de la Predicción</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0d1117;
+            margin: 0;
+            padding: 30px;
+            color: #e6edf3;
+        }
+
+        .container {
+            max-width: 900px;
+            background: #161b22;
+            padding: 30px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .barra-aqi {
+            width: 100%;
+            max-width: 600px;
+            height: 40px;
+            margin: 20px auto;
+            background: linear-gradient(to right, 
+                #00e400 0%, #ffff00 16.6%, #ff7e00 33.2%, 
+                #ff0000 49.8%, #99004c 66.4%, #7e0023 100%);
+            position: relative;
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.4);
+        }
+
+        .marcador {
+            position: absolute;
+            top: -15px;
+            width: 2px;
+            height: 70px;
+            background: white;
+        }
+
+        .aqi-texto {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .interpretacion {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #58a6ff;
+        }
+
+        #grafico-contenedor {
+            width: 90%;
+            max-width: 800px;
+            margin: 40px auto;
+        }
+
+        .volver {
+            display: block;
+            width: fit-content;
+            margin: 30px auto 0;
+            background: #1f6feb;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .volver:hover {
+            background: #1158c7;
+        }
+    .layout-flex {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 20px;
+}
+
+.main-container {
+  max-width: 1000px;
+  background: #161b22;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(0,0,0,0.4);
+  flex: 1;
+}
+
+.leyendas {
+  max-width: 300px;
+  padding: 20px;
+  background-color: #161b22;
+  border-radius: 12px;
+  border: 1px solid #30363d;
+  font-size: 14px;
+  color: #e6edf3;
+}
+
+.leyenda-box {
+  margin-bottom: 30px;
+}
+
+.leyenda-box h3 {
+  color: #58a6ff;
+  font-size: 16px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 4px;
+}
+
+.leyenda-item {
+  margin: 6px 0;
+  display: flex;
+  align-items: center;
+}
+
+.leyenda-color {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  border-radius: 3px;
+}
+
+    </style>
+</head>
+<body>
+<div class="layout-flex">
+  <div class="main-container">
+
+    <h1>Resultado de la Predicción</h1>
+
+    <div class="aqi-texto">AQI promedio predicho: {{ resultado }}</div>
+
+    <div class="barra-aqi">
+        <div class="marcador" style="left: calc({{ resultado|float / 500 * 100 }}%);"></div>
+    </div>
+
+    <div class="interpretacion">
+        {% if resultado < 51 %}
+            Calidad del aire: Buena (0–50)
+        {% elif resultado < 101 %}
+            Calidad del aire: Moderada (51–100)
+        {% elif resultado < 151 %}
+            Calidad del aire: Dañina para grupos sensibles (101–150)
+        {% elif resultado < 201 %}
+            Calidad del aire: Dañina (151–200)
+        {% elif resultado < 301 %}
+            Muy dañina (201–300)
+        {% else %}
+            Peligrosa (301–500)
+        {% endif %}
+    </div>
+
+    <div id="grafico-contenedor">
+        <h3 style="text-align: center;">Concentración de contaminantes</h3>
+        <canvas id="graficoContaminantes"></canvas>
+    </div>
+
+    <a href="/" class="volver">Volver al inicio</a>
+</div>
+
+<script>
+    const contaminantes = {{ contaminantes|tojson }};
+    const etiquetas = Object.keys(contaminantes);
+    const valores = Object.values(contaminantes);
+
+    new Chart(document.getElementById("graficoContaminantes"), {
+        type: 'bar',
+        data: {
+            labels: etiquetas,
+            datasets: [{
+                label: 'Concentración (μg/m³)',
+                data: valores,
+                backgroundColor: 'rgba(31, 111, 235, 0.7)',
+                borderColor: 'rgba(31, 111, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: "#e6edf3" }
+                },
+                x: {
+                    ticks: { color: "#e6edf3" }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: { color: "#e6edf3" }
+                }
+            }
+        }
+    });
+</script>
+  <div class="leyendas">
+    <div class="leyenda-box">
+      <h3>Rangos de calidad del aire (AQI)</h3>
+      <div class="leyenda-item"><span class="leyenda-color" style="background:#00e400;"></span> 0–50: Buena</div>
+      <div class="leyenda-item"><span class="leyenda-color" style="background:#ffff00;"></span> 51–100: Moderada</div>
+      <div class="leyenda-item"><span class="leyenda-color" style="background:#ff7e00;"></span> 101–150: Dañina para grupos sensibles</div>
+      <div class="leyenda-item"><span class="leyenda-color" style="background:#ff0000;"></span> 151–200: Dañina</div>
+      <div class="leyenda-item"><span class="leyenda-color" style="background:#99004c;"></span> 201–300: Muy dañina</div>
+      <div class="leyenda-item"><span class="leyenda-color" style="background:#7e0023;"></span> 301–500: Peligrosa</div>
+    </div>
+
+    <div class="leyenda-box">
+      <h3>Contaminantes</h3>
+      <div class="leyenda-item">PM2.5: Partículas finas (≤2.5 μm)</div>
+      <div class="leyenda-item">PM10: Partículas inhalables (≤10 μm)</div>
+      <div class="leyenda-item">NO: Óxido nítrico</div>
+      <div class="leyenda-item">NO₂: Dióxido de nitrógeno</div>
+      <div class="leyenda-item">NOx: Óxidos de nitrógeno</div>
+      <div class="leyenda-item">NH₃: Amoniaco</div>
+      <div class="leyenda-item">CO: Monóxido de carbono</div>
+      <div class="leyenda-item">SO₂: Dióxido de azufre</div>
+      <div class="leyenda-item">O₃: Ozono</div>
+    </div>
+  </div>
+</div> <!-- este cierra el contenedor de flex -->
+
+</body>
+</html>
+
+
+
+
+
+ 
+
+
+
+
+
+
